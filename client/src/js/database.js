@@ -1,7 +1,7 @@
 import { openDB } from 'idb';
 
-const initdb = async () =>
-  openDB('jate', 1, {
+const initdb = async () => {
+  const db = await openDB('jate', 1, {
     upgrade(db) {
       if (db.objectStoreNames.contains('jate')) {
         console.log('jate database already exists');
@@ -11,29 +11,28 @@ const initdb = async () =>
       console.log('jate database created');
     },
   });
+  return db;
+};
 
 // TODO: Add logic to a method that accepts some content and adds it to the database
-//followed the activities
 export const putDb = async (content) => {
-  const jateDb = await openDb ('jate', 1)
-  const tx = jateDb.transaction('jate', 'readwrite')
-  const store = tx.objectStore('jate')
-  const request = store.add({jate:content})
-  const result = await request
+  const jateDb = await initdb();
+  const tx = jateDb.transaction('jate', 'readwrite');
+  const store = tx.objectStore('jate');
+  const request = store.put({ id: 1, jate: content });
+  const result = await request;
   console.log('Data saved to the database', result);
 };
 
 // TODO: Add logic for a method that gets all the content from the database
 export const getDb = async () => {
-const jateDb = await openDb('jate',1)
-const tx = jateDb.transaction('jate' , 'readonly')
-const store = tx.objectStore('jate')
-const request = store.get(1)
-const result = await request
-console.log('result.value', result)
-return result
-}
-
-
+  const jateDb = await initdb();
+  const tx = jateDb.transaction('jate', 'readonly');
+  const store = tx.objectStore('jate');
+  const request = store.get(1);
+  const result = await request;
+  console.log('result.value', result);
+  return result?.jate;
+};
 
 initdb();
